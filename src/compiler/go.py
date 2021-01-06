@@ -1,6 +1,6 @@
 import strconv
 from typing import Tuple
-from types.general import Token
+from types.compile import Token
 from ds import BufferedStrList, CharIterator, TokenIterator
 from types.go import GoField, GoFieldName, GoFieldType, GoType, GoTypeName
 
