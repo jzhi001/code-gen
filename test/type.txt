@@ -1,0 +1,10 @@
+type struct Entry{
+    Name string
+    Value int64
+}
+
+type struct Dog{
+    Name string `json:name` // dog name
+    Age int64 `json:age` // dog age
+    Books []*Entry `json:books` // currently reading
+}
