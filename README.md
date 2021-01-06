@@ -20,6 +20,8 @@
 
 ## Future
 
+* rearrange field sequence to compact payload size
+
 * support multiple programming languages
 
 * support map struct code generation
