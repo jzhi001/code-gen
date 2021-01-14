@@ -38,6 +38,18 @@ func (cit *CharIterator) Next() (string, error) {
 	return char, nil
 }
 
+func (cit *CharIterator) NextRune() (rune, error) {
+
+	if !cit.HasNext() {
+		return 0, errors.New("no more character")
+	}
+
+	char := cit.runes[cit.i]
+	cit.i++
+
+	return char, nil
+}
+
 func (cit *CharIterator) JumpTo(tar rune) error {
 
 	if !cit.HasNext() {

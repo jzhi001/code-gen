@@ -101,6 +101,8 @@ func parseField(fName, fType Token) *FieldDesc {
 		f.FType = f.FType[1:]
 	}
 
+	f.FName = Token(Camel2Snake(f.FName.String()))
+
 	if _, found := builtinTypeMapping[f.FType]; found {
 		f.IsPrimitive = true
 	}
@@ -126,8 +128,8 @@ func Parse(tokens []Token) (typeDescList []*TypeDesc, err error) {
 
 		var typeName, fieldName, fieldType Token
 
-		_, err = it.NextNonNewLine() // skip 'struct'
 		typeName, err = it.NextNonNewLine()
+		_, err = it.NextNonNewLine() // skip 'struct'
 		_, err = it.NextNonNewLine() // skip '{'
 
 		var fieldDescList []*FieldDesc
