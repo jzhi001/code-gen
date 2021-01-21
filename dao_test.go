@@ -7,8 +7,7 @@ import (
 	"testing"
 )
 
-func TestParse(t *testing.T) {
-
+func TestAddFunction(t *testing.T) {
 	f, _ := os.Open("type.txt")
 
 	defer f.Close()
@@ -24,6 +23,6 @@ func TestParse(t *testing.T) {
 	}
 
 	for _, t := range typeDescList {
-		fmt.Println(t.ProtobufVer())
+		fmt.Println(AddFunction("table", t))
 	}
 }

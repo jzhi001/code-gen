@@ -1,4 +1,4 @@
-package idl_conv
+package code_gen
 
 import (
 	"strconv"
@@ -48,7 +48,7 @@ func Tokenize(typeDec string) ([]Token, error) {
 	bufStrList := NewBufferedStrList()
 	cit := NewCharIterator(typeDec)
 
-	for c, err := cit.Next(); cit.HasNext(); c, err = cit.Next() {
+	for c, err := cit.NextChar(); cit.HasNext(); c, err = cit.NextChar() {
 
 		if err != nil {
 			return nil, err

@@ -1,10 +1,13 @@
-type struct Entry{
-    Name string
-    Value int64
-}
-
-type struct Dog{
-    Name string `json:name` // dog name
-    Age int64 `json:age` // dog age
-    Books []*Entry `json:books` // currently reading
+type Giveaway struct {
+	Id            int64
+	Uid           int64                        `json:"uid" column:"uid"`
+	RuleId        static.GiveawayRule          `json:"rule_id" column:"rule_id"`
+	DeliverStatus static.GiveawayDeliverStatus `json:"deliver_status"`
+	GiftType      static.GiveawayType          `json:"gift_type" column:"gift_type"`
+	GiftId        int64                        `json:"gift_id" column:"gift_id"`
+	BusinessId    int64                        `json:"business_id" column:"business_id"`
+	IsRepeatable  bool                         `json:"is_repeatable" column:"is_repeatable"`
+	CreatedAt     int64                        `json:"created_at" column:"created_at"`
+	UpdatedAt     int64                        `json:"updated_at" column:"updated_at"`
+	IsDeleted     bool                         `json:"is_deleted"`
 }

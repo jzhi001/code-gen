@@ -1,4 +1,4 @@
-package idl_conv
+package code_gen
 
 import "testing"
 
@@ -11,7 +11,7 @@ func TestCharIterator_Next(t *testing.T) {
 	for i := 0; i < len(s); i++ {
 
 		expected := s[i : i+1]
-		c, err := cit.Next()
+		c, err := cit.NextChar()
 		if err != nil {
 			t.Fatal("early end " + err.Error())
 		}

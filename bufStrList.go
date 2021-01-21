@@ -1,4 +1,4 @@
-package idl_conv
+package code_gen
 
 import "errors"
 

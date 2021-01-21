@@ -1,4 +1,4 @@
-package idl_conv
+package code_gen
 
 import (
 	"errors"
@@ -26,7 +26,18 @@ func (cit *CharIterator) HasNext() bool {
 	return cit.i < cit.n
 }
 
-func (cit *CharIterator) Next() (string, error) {
+func (cit *CharIterator) NextRune() (rune, error) {
+	if !cit.HasNext() {
+		return 0, errors.New("no more character")
+	}
+
+	r := cit.runes[cit.i]
+	cit.i++
+
+	return r, nil
+}
+
+func (cit *CharIterator) NextChar() (string, error) {
 
 	if !cit.HasNext() {
 		return "", errors.New("no more character")
