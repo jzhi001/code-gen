@@ -50,20 +50,20 @@ func (f *FieldDesc) ProtobufVer(idx int) string {
 		f.FType = Token(builtinTypeMapping[f.FType])
 	}
 
-	s := fmt.Sprintf("%s %s = %d;", f.FType, f.FName, idx)
+	s := fmt.Sprintf("%s %s = %d;", f.FType, Camel2Snake(f.FName.String()), idx)
 	if f.IsSlice {
 		s = "repeated " + s
 	}
 	return s
 }
 
-type TypeDesc struct {
+type StructDesc struct {
 	TName        Token
 	Fields       []*FieldDesc
 	dependencies []FieldDesc
 }
 
-func (t *TypeDesc) String() string {
+func (t *StructDesc) String() string {
 	s := fmt.Sprintf("type %s{", t.TName)
 
 	for _, f := range t.Fields {
@@ -74,7 +74,7 @@ func (t *TypeDesc) String() string {
 	return s
 }
 
-func (t *TypeDesc) ProtobufVer() string {
+func (t *StructDesc) ProtobufVer() string {
 	s := fmt.Sprintf("message %s{\n", t.TName)
 
 	for i, f := range t.Fields {
@@ -85,11 +85,23 @@ func (t *TypeDesc) ProtobufVer() string {
 	return s
 }
 
+func (t *StructDesc) GetField(fieldName string) (*FieldDesc, error) {
+
+	for _, f := range t.Fields {
+		if f.FName.String() == fieldName {
+			return f, nil
+		}
+	}
+
+	return nil, errors.New("no such field")
+}
+
 func parseField(fName, fType Token) *FieldDesc {
 
 	f := &FieldDesc{
-		FName: fName,
-		FType: fType,
+		FName:     fName,
+		FType:     fType,
+		OrigFName: fName,
 	}
 
 	if f.FType.StartsWith(Slice) {
@@ -102,9 +114,6 @@ func parseField(fName, fType Token) *FieldDesc {
 		f.FType = f.FType[1:]
 	}
 
-	f.OrigFName = f.FName
-	f.FName = Token(Camel2Snake(f.FName.String()))
-
 	if _, found := builtinTypeMapping[f.FType]; found {
 		f.IsPrimitive = true
 	}
@@ -112,7 +121,7 @@ func parseField(fName, fType Token) *FieldDesc {
 	return f
 }
 
-func Parse(tokens []Token) (typeDescList []*TypeDesc, err error) {
+func Parse(tokens []Token) (typeDescList []*StructDesc, err error) {
 
 	it := NewTokenIterator(tokens)
 
@@ -150,7 +159,7 @@ func Parse(tokens []Token) (typeDescList []*TypeDesc, err error) {
 			fieldDescList = append(fieldDescList, parseField(fieldName, fieldType))
 		}
 
-		typeDescList = append(typeDescList, &TypeDesc{
+		typeDescList = append(typeDescList, &StructDesc{
 			TName:  typeName,
 			Fields: fieldDescList,
 		})

@@ -30,3 +30,17 @@ func Camel2Snake(s string) string {
 
 	return strings.Join(list, "_")
 }
+
+func UnTitle(s string) string {
+	runes := []rune(s)
+
+	if len(runes) == 0 {
+		return s
+	}
+
+	if unicode.IsUpper(runes[0]) {
+		runes[0] = unicode.ToLower(runes[0])
+	}
+
+	return string(runes)
+}
