@@ -67,6 +67,6 @@ func TestDaoCode(t *testing.T) {
 	}
 
 	for _, t := range typeDescList {
-		fmt.Println(DaoCode("table", t, [][]string{{"GiftId", "CreatedAt"}}))
+		fmt.Println(DaoCode("table", t, [][]string{{"Uid"}, {"Uid", "DeliverSuccess"}}))
 	}
 }

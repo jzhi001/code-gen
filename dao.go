@@ -34,8 +34,8 @@ func DaoCode(tableVar string, typeDesc *StructDesc, queryCriteria [][]string) st
 	ans += "func init() {\n"
 	ans += "db := util.NewDB(cluster, " + tableVar + ")\n"
 	ans += "Default" + typeDesc.TName.String() + "Dao = &" + typeDesc.TName.String() + "DaoImpl{\n"
-	ans += "Db: db\n"
-	ans += "}\n"
+	ans += "Db: db,\n"
+	ans += "}}\n"
 
 	ans += AddFunctionImpl(tableVar, typeDesc)
 	ans += UpdateByIdFuncImpl(tableVar, typeDesc)
@@ -110,7 +110,7 @@ func mapToUntitled(strList []string) []string {
 }
 
 func ListFunction(tableVar string, typeDesc *StructDesc, criteriaList []string) string {
-	fun := "func " + daoImplReceiver(typeDesc) + " " + listFuncName(typeDesc, criteriaList) + "(ctx context.Context"
+	fun := listFuncName(typeDesc, criteriaList) + "(ctx context.Context"
 
 	for _, criteria := range criteriaList {
 
@@ -155,12 +155,12 @@ func ListFunctionImpl(tableVar string, typeDesc *StructDesc, criteriaList []stri
 			if i > 0 {
 				fun += " AND"
 			}
-			fun += " " + UnTitle(field.FName.String()) + " = ?"
+			fun += " " + Camel2Snake(field.FName.String()) + " = ?"
 		}
 	}
 	fun += `", ` + tableVar + ")\n"
 
-	fun += "\tr, err := dao.Db.QueryContext(ctx, " + strings.Join(mapToUntitled(criteriaList), ", ") + ")\n"
+	fun += "\tr, err := dao.Db.QueryContext(ctx, sql, " + strings.Join(mapToUntitled(criteriaList), ", ") + ")\n"
 
 	// TODO auto tab
 	fun += "\tif err != nil {\n \t\t return nil, err\n\t}\n"
@@ -193,7 +193,7 @@ func ListFunctionImpl(tableVar string, typeDesc *StructDesc, criteriaList []stri
 }
 
 func AddFunction(tableVar string, typeDesc *StructDesc) string {
-	return "func " + daoImplReceiver(typeDesc) + " Add(ctx context.Context, model *" + typeDesc.TName.String() + ") error\n"
+	return "Add(ctx context.Context, model *" + typeDesc.TName.String() + ") error\n"
 }
 
 func AddFunctionImpl(tableVar string, typeDesc *StructDesc) string {
@@ -202,9 +202,9 @@ func AddFunctionImpl(tableVar string, typeDesc *StructDesc) string {
 
 	// TODO statement layer receiver.call(func, params).String()
 	// TODO sql layer
-	fun += tab + `fmt.Sprintf("INSERT INTO %s (` + columnList(typeDesc) + ") VALUES (" + placeHolderList(typeDesc) + `)", ` + tableVar + ")\n"
+	fun += tab + `sql := fmt.Sprintf("INSERT INTO %s (` + columnList(typeDesc) + ") VALUES (" + placeHolderList(typeDesc) + `)", ` + tableVar + ")\n"
 
-	fun += tab + `_, err := dao.Db.ExecContext(ctx`
+	fun += tab + `_, err := dao.Db.ExecContext(ctx, sql`
 
 	for _, f := range typeDesc.Fields {
 		fun += ", model." + f.OrigFName.String()
@@ -217,14 +217,14 @@ func AddFunctionImpl(tableVar string, typeDesc *StructDesc) string {
 }
 
 func UpdateByIdFunc(tableVar string, typeDesc *StructDesc) string {
-	return "func " + daoImplReceiver(typeDesc) + " UpdateById(ctx context.Context, model *" + typeDesc.TName.String() + ") error\n"
+	return "UpdateById(ctx context.Context, model *" + typeDesc.TName.String() + ") error\n"
 }
 
 func UpdateByIdFuncImpl(tableVar string, typeDesc *StructDesc) string {
 
 	fun := "func " + daoImplReceiver(typeDesc) + " UpdateById(ctx context.Context, model *" + typeDesc.TName.String() + ") error{\n"
 
-	fun += tab + `fmt.Sprintf("UPDATE %s SET`
+	fun += tab + `sql := fmt.Sprintf("UPDATE %s SET`
 
 	for i, field := range typeDesc.Fields {
 		// skip id
@@ -239,7 +239,7 @@ func UpdateByIdFuncImpl(tableVar string, typeDesc *StructDesc) string {
 	}
 	fun += " WHERE `id` = ?\", " + tableVar + ")\n"
 
-	fun += tab + `_, err := dao.Db.ExecContext(ctx`
+	fun += tab + `_, err := dao.Db.ExecContext(ctx, sql`
 
 	for _, f := range typeDesc.Fields {
 		if f.FName.String() == "Id" {
