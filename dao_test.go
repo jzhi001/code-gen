@@ -70,3 +70,21 @@ func TestDaoCode(t *testing.T) {
 		fmt.Println(DaoCode("table", t, [][]string{{"Uid"}, {"Uid", "DeliverSuccess"}}))
 	}
 }
+
+func TestWithDDL(t *testing.T) {
+
+	f, _ := os.Open("example.sql")
+
+	defer f.Close()
+
+	bytes, _ := ioutil.ReadAll(f)
+
+	ddl := string(bytes)
+
+	tokens, _ := TokenizeDDL(ddl)
+
+	structDesc := ParseDDL(tokens)
+
+	fmt.Println(DaoCode("table", structDesc, [][]string{}))
+
+}

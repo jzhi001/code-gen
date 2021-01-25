@@ -38,10 +38,15 @@ type FieldDesc struct {
 	IsPrimitive     bool
 	IsMap           bool   // TODO support map<A, B>
 	BackTickComment string // TODO support `protobuf:"dog_name"`
+	SlashedComment  string
 }
 
 func (f *FieldDesc) String() string {
-	return fmt.Sprintf("name: %s, type: %s", f.FName.Quote(), f.FType.Quote())
+	s := fmt.Sprintf("%s %s `json:\"%s\"`", f.FName.String(), f.FType.String(), Camel2Snake(f.FName.String()))
+	if len(f.SlashedComment) > 0 {
+		s += " // " + f.SlashedComment
+	}
+	return s
 }
 
 func (f *FieldDesc) ProtobufVer(idx int) string {
@@ -64,10 +69,10 @@ type StructDesc struct {
 }
 
 func (t *StructDesc) String() string {
-	s := fmt.Sprintf("type %s{", t.TName)
+	s := fmt.Sprintf("type %s struct {\n", t.TName)
 
 	for _, f := range t.Fields {
-		s += f.String() + ","
+		s += f.String() + "\n"
 	}
 
 	s += "}"

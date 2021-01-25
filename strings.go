@@ -31,6 +31,32 @@ func Camel2Snake(s string) string {
 	return strings.Join(list, "_")
 }
 
+func Snake2Camel(s string) string {
+
+	cit := NewCharIterator(s)
+	buf := NewBufferedStrList()
+
+	for cit.HasNext() {
+
+		r, _ := cit.NextRune()
+
+		if r == '_' {
+			buf.FlushBuffer()
+		} else {
+			buf.AppendToBuffer(string(r))
+		}
+	}
+	buf.FlushBuffer()
+
+	var list []string
+
+	for _, tk := range buf.GetList() {
+		list = append(list, strings.Title(tk.String()))
+	}
+
+	return strings.Join(list, "")
+}
+
 func UnTitle(s string) string {
 	runes := []rune(s)
 

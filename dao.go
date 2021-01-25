@@ -12,6 +12,9 @@ func DaoCode(tableVar string, typeDesc *StructDesc, queryCriteria [][]string) st
 
 	ans := "package dao\n\n"
 	ans += "import (\n\"context\"\n\"fmt\"\n)\n"
+
+	ans += typeDesc.String() + "\n"
+
 	ans += "type " + typeDesc.TName.String() + "Dao interface{\n"
 
 	ans += AddFunction(tableVar, typeDesc)
@@ -207,7 +210,7 @@ func AddFunctionImpl(tableVar string, typeDesc *StructDesc) string {
 	fun += tab + `_, err := dao.Db.ExecContext(ctx, sql`
 
 	for _, f := range typeDesc.Fields {
-		fun += ", model." + f.OrigFName.String()
+		fun += ", model." + f.FName.String()
 	}
 
 	fun += ")\n"
@@ -245,7 +248,7 @@ func UpdateByIdFuncImpl(tableVar string, typeDesc *StructDesc) string {
 		if f.FName.String() == "Id" {
 			continue
 		}
-		fun += ", model." + f.OrigFName.String()
+		fun += ", model." + f.FName.String()
 	}
 	fun += ", model.Id"
 
