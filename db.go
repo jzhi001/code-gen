@@ -32,7 +32,10 @@ func skipWords(tokens []Token, i int) int {
 			i += 2
 		case "default":
 			i += 2
-		case "unsigned":
+			if tokens[i].String() == "'" {
+				i++
+			}
+		case "unsigned", "auto_increment", "primary", "key":
 			i++
 		default:
 			return i
@@ -54,7 +57,7 @@ func ParseDDL(tokens []Token) (*StructDesc, string) {
 	tableName := tokens[0].String()
 	structDesc.TName = Token(Snake2Camel(parseStructName(tokens[0].String())))
 
-	for i := 2; i <= len(tokens) && tokens[i] != ")"; i++ {
+	for i := 2; i <= len(tokens); i++ {
 
 		if strings.ToLower(tokens[i].String()) == "primary" {
 			break
@@ -82,6 +85,10 @@ func ParseDDL(tokens []Token) (*StructDesc, string) {
 			i += 2
 		}
 
+		if tokens[i] == ")" {
+			break
+		}
+
 		fieldType := "string"
 
 		if columnType == "varchar" {
@@ -89,12 +96,12 @@ func ParseDDL(tokens []Token) (*StructDesc, string) {
 		} else if columnType == "tinyint" {
 			fieldType = "bool"
 		} else if columnType == "bigint" {
-			if length == 20 {
+			if length >= 20 {
 				fieldType = "int64"
-			} else if length == 8 {
+			} else if length >= 10 {
 				fieldType = "int32"
 			} else {
-				fieldType = "int"
+				fieldType = "int64"
 			}
 		}
 
@@ -140,7 +147,9 @@ func TokenizeDDL(typeDec string) ([]Token, error) {
 			j := i + 1
 			for ; j < len(runes) && runes[j] != '\''; j++ {
 			}
-			bufStrList.AppendToList(string(runes[i+1 : j]))
+			if i < j-1 {
+				bufStrList.AppendToList(string(runes[i+1 : j]))
+			}
 			bufStrList.AppendToList("'")
 			i = j
 		} else if r == '#' {
