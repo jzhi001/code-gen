@@ -19,6 +19,7 @@ func DaoCode(tableVar string, typeDesc *StructDesc, queryCriteria [][]string) st
 
 	ans += AddFunction(tableVar, typeDesc)
 	ans += UpdateByIdFunc(tableVar, typeDesc)
+	ans += ListFunction(tableVar, typeDesc, []string{})
 
 	for _, criterion := range queryCriteria {
 		ans += ListFunction(tableVar, typeDesc, criterion)
@@ -42,6 +43,7 @@ func DaoCode(tableVar string, typeDesc *StructDesc, queryCriteria [][]string) st
 
 	ans += AddFunctionImpl(tableVar, typeDesc)
 	ans += UpdateByIdFuncImpl(tableVar, typeDesc)
+	ans += ListFunctionImpl(tableVar, typeDesc, []string{})
 
 	for _, criterion := range queryCriteria {
 		ans += ListFunctionImpl(tableVar, typeDesc, criterion)
