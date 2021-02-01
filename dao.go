@@ -19,19 +19,23 @@ func clusterName(table string) string {
 
 }
 
-func DaoCode(tableVar string, tableName string, typeDesc *StructDesc, queryCriteria [][]string) string {
+func DaoCode(tableName string, typeDesc *StructDesc, queryCriteria [][]string) string {
 
 	ans := "package dao\n\n"
 	ans += "import (\n\"context\"\n\"fmt\"\n)\n"
 
+	tableVar := Snake2Camel(tableName) + "Table"
+
 	ans += "const cluster = \"" + clusterName(tableName) + "\"\n"
 	ans += "const " + tableVar + " = \"" + tableName + "\"\n"
+	ans += "const partition = 500"
 
 	ans += typeDesc.String() + "\n"
 
 	ans += "type " + typeDesc.TName.String() + "Dao interface{\n"
 
 	ans += AddFunction(tableVar, typeDesc)
+	ans += BatchAddFunction(tableName, typeDesc)
 	ans += UpdateByIdFunc(tableVar, typeDesc)
 	ans += ListFunction(tableVar, typeDesc, []string{})
 
@@ -56,6 +60,7 @@ func DaoCode(tableVar string, tableName string, typeDesc *StructDesc, queryCrite
 	ans += "}}\n"
 
 	ans += AddFunctionImpl(tableVar, typeDesc)
+	ans += BatchAddFunctionImpl(tableVar, typeDesc)
 	ans += UpdateByIdFuncImpl(tableVar, typeDesc)
 	ans += ListFunctionImpl(tableVar, typeDesc, []string{})
 
@@ -215,6 +220,10 @@ func AddFunction(tableVar string, typeDesc *StructDesc) string {
 	return "Add(ctx context.Context, model *" + typeDesc.TName.String() + ") error\n"
 }
 
+func BatchAddFunction(tableVar string, typeDesc *StructDesc) string {
+	return "BatchAdd(ctx context.Context, models []*" + typeDesc.TName.String() + ") error\n"
+}
+
 func AddFunctionImpl(tableVar string, typeDesc *StructDesc) string {
 
 	fun := "func " + daoImplReceiver(typeDesc) + " Add(ctx context.Context, model *" + typeDesc.TName.String() + ") error{\n"
@@ -231,6 +240,54 @@ func AddFunctionImpl(tableVar string, typeDesc *StructDesc) string {
 
 	fun += ")\n"
 	fun += tab + "return err\n}\n"
+
+	return fun
+}
+
+func BatchAddFunctionImpl(tableVar string, typeDesc *StructDesc) string {
+
+	fun := "func " + daoImplReceiver(typeDesc) + " BatchAdd(ctx context.Context, models []*" + typeDesc.TName.String() + ") error{\n"
+
+	fun += `for i := 0; i < len(models); i += partition {` + "\n"
+	// TODO statement layer receiver.call(func, params).String()
+	// TODO sql layer
+	fun += tab + `sql := fmt.Sprintf("INSERT INTO %s (` + columnList(typeDesc) + `) VALUES ", ` + tableVar + ")\n"
+
+	fun += `for j, c := i, 0; j < len(models) && c < partition; j, c = j+1, c+1 {` + "\n"
+	fun += "model := models[j]\n"
+
+	fun += `if i > 0 {
+			sql += ","
+		}
+`
+	fun += `sql += "("`
+
+	for i, field := range typeDesc.Fields {
+		if i > 0 {
+			fun += `+ ","`
+		}
+		if field.FType == "string" {
+			fun += `+ "'" + model.` + field.FName.String() + ` + "'"`
+		} else {
+			if field.FType == "int64" {
+				fun += "+ strconv.FormatInt(model." + field.FName.String() + ", 10)"
+			} else {
+				fun += "+ strconv.FormatInt(int64(model." + field.FName.String() + "), 10)"
+			}
+
+		}
+	}
+	fun += `+ ")"`
+
+	fun += "\n}\n"
+
+	fun += tab + `_, err := dao.Db.ExecContext(ctx, sql)` + "\n"
+	fun += `if err != nil {
+
+		}
+`
+	fun += "}\n"
+	fun += tab + "return nil\n}\n"
 
 	return fun
 }

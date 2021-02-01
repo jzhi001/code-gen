@@ -95,6 +95,8 @@ func ParseDDL(tokens []Token) (*StructDesc, string) {
 			fieldType = "string"
 		} else if columnType == "tinyint" {
 			fieldType = "bool"
+		} else if columnType == "int" {
+			fieldType = "int32"
 		} else if columnType == "bigint" {
 			if length >= 20 {
 				fieldType = "int64"
