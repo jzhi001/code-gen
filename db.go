@@ -24,6 +24,24 @@ func parseStructName(tableName string) string {
 	return tableName[i+1:]
 }
 
+func skipWords(tokens []Token, i int) int {
+
+	for i < len(tokens) {
+		switch tokens[i] {
+		case "not":
+			i += 2
+		case "default":
+			i += 2
+		case "unsigned":
+			i++
+		default:
+			return i
+		}
+	}
+
+	return i
+}
+
 func ParseDDL(tokens []Token) *StructDesc {
 
 	structDesc := &StructDesc{
@@ -55,13 +73,7 @@ func ParseDDL(tokens []Token) *StructDesc {
 			i += 2
 		}
 
-		if i < len(tokens) && (tokens[i] == "not" || tokens[i] == "default") {
-			i += 2
-		}
-
-		if i < len(tokens) && (tokens[i] == "not" || tokens[i] == "default") {
-			i += 2
-		}
+		i = skipWords(tokens, i)
 
 		if i < len(tokens) && tokens[i] == "comment" {
 			i += 2 // skip single quote
@@ -130,6 +142,11 @@ func TokenizeDDL(typeDec string) ([]Token, error) {
 			bufStrList.AppendToList(string(runes[i+1 : j]))
 			bufStrList.AppendToList("'")
 			i = j
+		} else if r == '#' {
+			bufStrList.FlushBuffer()
+			for runes[i] != '\n' {
+				i++
+			}
 		} else {
 			bufStrList.AppendToBuffer(string(r))
 		}
