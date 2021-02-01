@@ -67,7 +67,7 @@ func TestDaoCode(t *testing.T) {
 	}
 
 	for _, t := range typeDescList {
-		fmt.Println(DaoCode("table", t, [][]string{{"Uid"}, {"Uid", "DeliverSuccess"}}))
+		fmt.Println(DaoCode("table", "jzhi001_book", t, [][]string{{"Uid"}, {"Uid", "DeliverSuccess"}}))
 	}
 }
 
@@ -83,8 +83,8 @@ func TestWithDDL(t *testing.T) {
 
 	tokens, _ := TokenizeDDL(ddl)
 
-	structDesc := ParseDDL(tokens)
+	structDesc, tableName := ParseDDL(tokens)
 
-	fmt.Println(DaoCode("table", structDesc, [][]string{}))
+	fmt.Println(DaoCode("table", tableName, structDesc, [][]string{}))
 
 }

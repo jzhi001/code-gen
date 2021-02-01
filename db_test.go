@@ -34,7 +34,7 @@ func TestParseDDL(t *testing.T) {
 
 	tokens, _ := TokenizeDDL(ddl)
 
-	structDesc := ParseDDL(tokens)
+	structDesc, _ := ParseDDL(tokens)
 
 	println(structDesc.TName)
 

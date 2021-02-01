@@ -8,10 +8,24 @@ import (
 
 const tab = "\t"
 
-func DaoCode(tableVar string, typeDesc *StructDesc, queryCriteria [][]string) string {
+func clusterName(table string) string {
+	ans := ""
+
+	for i := 0; i < len(table) && table[i] != '_'; i++ {
+		ans += string(table[i])
+	}
+
+	return strings.ToUpper(ans)
+
+}
+
+func DaoCode(tableVar string, tableName string, typeDesc *StructDesc, queryCriteria [][]string) string {
 
 	ans := "package dao\n\n"
 	ans += "import (\n\"context\"\n\"fmt\"\n)\n"
+
+	ans += "const cluster = \"" + clusterName(tableName) + "\"\n"
+	ans += "const " + tableVar + " = \"" + tableName + "\"\n"
 
 	ans += typeDesc.String() + "\n"
 

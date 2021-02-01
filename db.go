@@ -42,7 +42,7 @@ func skipWords(tokens []Token, i int) int {
 	return i
 }
 
-func ParseDDL(tokens []Token) *StructDesc {
+func ParseDDL(tokens []Token) (*StructDesc, string) {
 
 	structDesc := &StructDesc{
 		TName:  "",
@@ -51,6 +51,7 @@ func ParseDDL(tokens []Token) *StructDesc {
 
 	tokens = tokens[2:] // skip create table
 
+	tableName := tokens[0].String()
 	structDesc.TName = Token(Snake2Camel(parseStructName(tokens[0].String())))
 
 	for i := 2; i <= len(tokens) && tokens[i] != ")"; i++ {
@@ -110,7 +111,7 @@ func ParseDDL(tokens []Token) *StructDesc {
 
 		structDesc.Fields = append(structDesc.Fields, fieldDesc)
 	}
-	return structDesc
+	return structDesc, tableName
 }
 
 func TokenizeDDL(typeDec string) ([]Token, error) {
