@@ -256,7 +256,7 @@ func BatchAddFunctionImpl(tableVar string, typeDesc *StructDesc) string {
 	fun += `for j, c := i, 0; j < len(models) && c < partition; j, c = j+1, c+1 {` + "\n"
 	fun += "model := models[j]\n"
 
-	fun += `if i > 0 {
+	fun += `if j > 0 {
 			sql += ","
 		}
 `
