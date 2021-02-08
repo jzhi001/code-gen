@@ -85,10 +85,6 @@ func ParseDDL(tokens []Token) (*StructDesc, string) {
 			i += 2
 		}
 
-		if tokens[i] == ")" {
-			break
-		}
-
 		fieldType := "string"
 
 		if columnType == "varchar" {
@@ -119,6 +115,10 @@ func ParseDDL(tokens []Token) (*StructDesc, string) {
 		}
 
 		structDesc.Fields = append(structDesc.Fields, fieldDesc)
+
+		if tokens[i] == ")" {
+			break
+		}
 	}
 	return structDesc, tableName
 }
